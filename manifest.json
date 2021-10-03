@@ -1,19 +1,27 @@
 {
-  "name": "WebRTC stats viewer",
+  "name": "WebRTC Stats Stats",
     "description": "Display WebRTC stats for ongoing A/V streams",
+	"permissions": ["storage"],
     "author": "Philippe Sultan",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "manifest_version": 2,
     "minimum_chrome_version": "34",
     "icons": {
     },
     "content_scripts": [ {
-      "js": [ "injectedScript.js" ],
+      "js": [ "injectedScript.js", "fp.min.js" ],
       "css": ["style.css"],
       "run_at": "document_start",
       "matches": [ "https://*/*", "http://localhost:*/*" ]
     }],
     "web_accessible_resources": [
-      "content.js"
-    ]
+      "content.js", "fp.min.js"
+    ],
+	 "options_ui": {
+		"page": "options.html",
+		"open_in_tab": false
+	},
+	 "browser_action": {
+       "default_popup": "options.html"
+	}
 }
