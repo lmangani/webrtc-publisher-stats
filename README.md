@@ -1,3 +1,5 @@
+<img src="https://github.com/lmangani/webrtc-publisher-stats/blob/master/icon128.png?raw=true" />
+
 A chrome extension that gathers, displays and streams WebRTC stats in real time
 
 ## Installation
@@ -12,8 +14,8 @@ Clone the repository, then install the extension, in Chrome:
 - WebRTC statistics
 - Browser Fingerprinting
 - JS console forking
-- WSS emitter
+- Configurable WSS emitter
 
-## Options
+### Options
 
 <img src="https://i.imgur.com/drJGdpH.png" />
