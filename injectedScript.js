@@ -40,13 +40,13 @@ xscript.setAttribute('src', chrome.extension.getURL('fp.min.js'));
 xscript.async = true; 
 (document.head || document.documentElement).appendChild(xscript);
 
+// Fetch Extension Settings to localStorage or use defaults
 chrome.storage.local.get({
     tracking: true,
     logs: true,
-	server: "wss://websniffer.glitch.me"
+    server: "wss://websniffer.glitch.me"
   }, function(items) {
     localStorage.server = items.server;
     localStorage.tracking = items.tracking;
-	localStorage.logs = items.logs;
-	
+    localStorage.logs = items.logs;	
   });
