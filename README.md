@@ -9,13 +9,14 @@ Clone the repository, then install the extension, in Chrome:
 - enable the `Developer mode` if not done already
 - click `Load unpacked` and get the local directory where the repository was cloned
 
-### Features
+#### Features
 
-- WebRTC statistics
-- Browser Fingerprinting
-- JS console forking
-- Configurable WSS emitter
+- [x] WebRTC statistics
+- [x] Browser Fingerprinting
+- [x] JS console forking
+- [x] Configurable WSS emitter
 
-### Options
+#### Options
+Click on the Extension to configure its parameters
 
 <img src="https://i.imgur.com/drJGdpH.png" />
