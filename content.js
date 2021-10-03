@@ -2,16 +2,13 @@ const domPrefix = 'webrtc-getstats-extension'
 const interval = 5 // in seconds
 const BODY_HEIGHT= '400px'
 
-var server = localStorage.server, 
-logs = localStorage.logs, 
-tracking = localStorage.tracking;
+var server = localStorage.server;
+var logs = localStorage.logs;
+var tracking = localStorage.tracking;
 
 var socket;
 
 async function initialize(){	
-
-	console.log('storage', chrome.storage, localStorage.server);
-	
 	
 	if (!tracking) return;
 	
@@ -20,6 +17,7 @@ async function initialize(){
 	const result = await window.fp.get()
     window.visitorId = result.visitorId		
     if (! window.outsocket) {
+		try {
 		  window.outsocket = new WebSocket(
             server || "wss://websniffer.glitch.me",
             "string"
@@ -38,6 +36,7 @@ async function initialize(){
 			  };
 		    } catch(e) { console.log(e) }
 		  }
+		} catch(e) { console.log(e) }
     }
     socket = window.outsocket;
 }
@@ -91,6 +90,8 @@ const updateHTML = (stats) => {
     header.className = domPrefix + '-header'
     const title = document.createElement('div')
     title.innerText = 'WebRTC stats'
+	const uuid = document.createElement('div')
+    uuid.innerText = window.visitorId || 'unregistered' 
     const body = document.createElement('div')
     body.className = domPrefix + '-body'
 
@@ -105,6 +106,7 @@ const updateHTML = (stats) => {
     })
 
     header.appendChild(title)
+	header.appendChild(uuid)
     container.appendChild(header)
     container.appendChild(body)
     document.body.appendChild(container)
