@@ -118,10 +118,10 @@ const updateHTML = (stats) => {
     const domElement = document.querySelector(`#${domPrefix} .mediastreamid-${key}`)
 
     const audioBitrate = stats[key].stats.audio.bitrate
-    let audioBitrateKbits = 0
     let audioRoundTripTime = 0
-    let audioJitter = 0
+    let audioBitrateKbits = 0
     let audioInstantPacketLossPercent = 0
+    let audioJitter = 0
 
     if (!isNaN(audioBitrate)) {
       audioBitrateKbits = Math.round(audioBitrate / 1000)
@@ -150,12 +150,12 @@ const updateHTML = (stats) => {
       const audioRoundTripTimeElement = document.createElement('div')
       audioRoundTripTimeElement.classList.add('rtt')
       audioRoundTripTimeElement.appendChild(document.createTextNode(`audio RTT : ${audioRoundTripTime}s`))
-      const audioInstantPacketLossPercentElem = document.createElement('div')
-      audioInstantPacketLossPercentElem.classList.add('instant-packet-loss-percent')
-      audioInstantPacketLossPercentElem.appendChild(document.createTextNode(`audio loss : ${audioInstantPacketLossPercent}%`))
       const audioBitrateElem = document.createElement('div')
       audioBitrateElem.classList.add('bitrate')
       audioBitrateElem.appendChild(document.createTextNode(`audio bitrate : ${audioBitrateKbits} kbps`))
+      const audioInstantPacketLossPercentElem = document.createElement('div')
+      audioInstantPacketLossPercentElem.classList.add('instant-packet-loss-percent')
+      audioInstantPacketLossPercentElem.appendChild(document.createTextNode(`audio loss : ${audioInstantPacketLossPercent}%`))
       const audioJitterElement = document.createElement('div')
       audioJitterElement.classList.add('jitter')
       audioJitterElement.appendChild(document.createTextNode(`audio jitter : ${audioJitter}`))
@@ -206,9 +206,11 @@ const updateHTML = (stats) => {
       return
     }
 
-    domElement.querySelector('.audio .rtt').innerText = `audio RTT : ${stats[key].stats.audio.roundTripTime}s`
-    domElement.querySelector('.audio .bitrate').innerText = `audio bitrate : ${stats[key].stats.audio.bitrate ? Math.round(stats[key].stats.audio.bitrate / 1000) : 0} kbps`
-    domElement.querySelector('.audio .instant-packet-loss-percent').innerText = `audio loss : ${Math.round(stats[key].stats.audio.instantPacketLossPercent)}%`
+    domElement.querySelector('.audio .rtt').innerText = `audio RTT : ${audioRoundTripTime}s`
+    domElement.querySelector('.audio .bitrate').innerText = `audio bitrate : ${audioBitrateKbits} kbps`
+    domElement.querySelector('.audio .instant-packet-loss-percent').innerText = `audio loss : ${audioInstantPacketLossPercent}%`
+    domElement.querySelector('.audio .jitter').innerText = `audio jitter : ${audioJitter}%`
+
     Object.entries(stats[key].stats.video).forEach(([key, value]) => {
       let videoStatElement = domElement.querySelector(`.video .dimensions-${key}`)
       if (!videoStatElement && !isNaN(value.bitrate) && value.bitrate > 0) {
@@ -278,9 +280,9 @@ const clearMediaStreamsFromStats = (stats) => {
 }
 
 const loopGetStats = async () => {
-  if (!window._webrtc_getstats?.peerConnections) {
-    return
-  }
+  const container = document.querySelector('#' + domPrefix)
+  // Change this variable to true if we find at least one RTCRtpSender to display
+  let displayContainer = false
 
   for (const pc of window._webrtc_getstats.peerConnections) {
     if (pc.iceConnectionState !== 'completed' && pc.iceConnectionState !== 'connected') {
@@ -300,6 +302,8 @@ const loopGetStats = async () => {
         // Cannot find DOM element that matches with MediaTrack
         continue
       }
+
+      displayContainer = true
 
       //       let container = document.querySelector(
       //         "#" + domPrefix + "_" + element.srcObject.id
@@ -432,6 +436,10 @@ const loopGetStats = async () => {
         rtcRtpSenderStats.stats.bitrate = (rtcRtpSenderStats.stats.bytesSent - rtcRtpSenderStatsClone.stats.bytesSent) * 8 / interval
       }
     }
+  }
+
+  if (container && container.style) {
+    container.style.display = displayContainer ? 'block' : 'none'
   }
 
   updateHTML(window._webrtc_getstats.rtcRtpSenderStats)
